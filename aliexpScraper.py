@@ -1,36 +1,3 @@
-# Data Extraction Technique: https://towardsdatascience.com/web-scraping-using-selenium-836de8677ae5
-# Login Automation: https://www.browserstack.com/guide/login-automation-using-selenium-webdriver
-# Login Automation-2: https://www.browserstack.com/guide/sendkeys-in-selenium
-# CSS Selectors: https://saucelabs.com/resources/articles/selenium-tips-css-selectors
-# Selenium Python Read the docs and tutorial: https://selenium-python.readthedocs.io/
-# Selenium Webdriver Docs with python bindings: https://www.selenium.dev/documentation/en/webdriver/
-# Selenium Docs-Browser manipulation: https://www.selenium.dev/documentation/en/webdriver/browser_manipulation/
-# Selenium Docs-Wait: https://www.selenium.dev/documentation/en/webdriver/waits/
-
-
-# Login URL Example = https://login.aliexpress.com/
-
-'''
-This script is specifically designed to scrape stores on AliExpress.
-The main purpose of creating this program is to catalogue the aliexpress stores.
-
-Situation:
-On store product pages the products are digitally cataloged into multiple subgroups and browsing the data is a pain.
-
-Task:
-Here we are going to catalogue all the prp
-
-Action:
-Extract the group links, handle the login page if triggered, navigate to each group link and extract the product data from it, travelling thrugh muliple page listings. Handling pagination.
-
-Result:
-A full blown easy to browse catalogue in csv format.
-
-Browser used: Firefox V86.0 (64bit)
-webdriver used: geckodriver
-Dependencies : requirements.txt
-'''
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -38,158 +5,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import datetime
 import time
-import argparse
-import os
-
-import requests
-from bs4 import BeautifulSoup
-
-
-
-# class AliScraper():
-
-#     def __init__(self, store_url):
-#         '''
-#         Initializing the first variables, and the firefox webdriver.
-#         '''
-#         self.store_url = store.url
-#         # Initializing web driver for firefox with maximized window.
-#         print(f'[PROCESS]: Initializing web driver for firefox.')
-#         self.driver = webdriver.Firefox()
-#         print(f'[INFO]: Started Firefox in a new window.')
-#         print(f'[PROCESS]: Maximizing firefox window.')
-#         self.driver.maximize_window()
-#         print(f'[INFO]: Firefox window maximized.')
-
-#     def get_url(self, url):
-#         '''
-#         Request the specified URL. The request here is explicit so the browser will not 
-#         execute the further commands untill page finished loading.
-#         '''
-#         print(f'[PROCESS]: Requesting desired URL = {url}.')
-#         self.driver.get(url)
-#         print(f'[INFO]: Request completed.')
-
-#         print(f'[PROCESS]: Verifing the URL.')
-#         new_url = self.driver.current_url
-#         if new_url != url:
-#             if 'login' in new_url:
-#                 print(f'[INFO]: Hit the login page.')
-#                 return('login')
-#             else:
-#                 print(f'[ERROR]: Bad URL!!')
-#                 print(f'[LOG]: Displayed URL is = {new_url}')
-#                 return('error')
-
-#         else:
-#             print(f'[INFO]: Currently at the store front.')
-#             return('success')
-
-#     def aexp_login(self, login_id, login_pass):
-#         '''
-#         AliExpress Specific login.
-#         Caveat: Can't distinguish between successful login and and unsuccessful one, So no return statement.
-#         '''
-#         print(f'[INFO]: Executing the Login sequence.')
-
-#         print(f'[PROCESS]: Getting the login box element.')
-#         # Another method of finding elements: mucho_cheese = driver.find_elements_by_css_selector("#cheese li")
-#         login_box_element = self.driver.find_element(By.ID, "fm-login-id")
-#         print(f'[INFO]: Found login box.')
-#         print(f'[PROCESS]: Getting the password box element.')
-#         password_box_element = self.driver.find_element(By.ID, "fm-login-password")
-#         print(f'[INFO]: Found password box.')
-#         print(f'[PROCESS]: Getting the login button element.')
-#         login_button_element = self.driver.find_element_by_css_selector(".fm-button")
-#         print(f'[INFO]: Found login button.')
-
-#         print(f'[PROCESS]: Typing login ID.')
-#         login_box_element.send_keys(login_id)
-#         print(f'[INFO]: Login ID typed successfully.')
-#         print(f'[PROCESS]: Typing Password.')
-#         # Enter password and perform "ENTER" keyboard action
-#         # No need to locate the login button and press it.
-#         password_box_element.send_keys(login_pass + Keys.ENTER)
-#         print(f'[INFO]: Password typed successfully.')
-#         print(f'[PROCESS]: Logging In.')
-#         login_button_element.click()
-#         print(f'[INFO]: Logged In successfully.')
-
-#         print(f'[MESSAGE]: The browser would redirect to the page you have previously requested.')
-#         # return(driver)
-
-#     def extract_group_links(self):
-#         '''
-#         This function extracts group links from an AliExpress store.
-#         Returns: Links to the subgroups.
-#         '''
-
-#         print(f'[PROCESS]: Executing Extraction function.')
-
-#         print(f'[PROCESS]: Waiting for the elements to load.') 
-#         # Caution: The element selector argument is a tuple.
-#         WebDriverWait(driver, timeout=20).until(
-#             EC.presence_of_element_located((By.CSS_SELECTOR, ".sub-group-item a"))
-#         )
-#         print(f'[INFO]: Wait is over, Either timeout or elements are loaded.')
-
-#         pause_time = 2
-#         last_height = driver.execute_script("return document.body.scrollHeight")
-
-#         # Record the starting time
-#         start = datetime.datetime.now()
-
-#         print(f'[PROCESS]: Scrolling to the bottom of the page')
-#         while True:
-#             # Scroll down to bottom
-#             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-#             # wait to load page
-#             time.sleep(pause_time)
-
-#             # Calculate new scroll height and compare with last scroll height
-#             new_height = driver.execute_script("return document.body.scrollHeight")
-#             if new_height == last_height: # which means end of page
-#                 break
-#             # update the last height
-#             last_height = new_height
-
-#         print(f'[INFO]: Scrolled to the bottom of the page.')
-
-#         # Record the end time, then calculate and print the total time
-#         end = datetime.datetime.now()
-#         delta = end-start
-#         print("[INFO] Total time taken to scroll till the end {}".format(delta))
-
-
-#         # Extract sub-group-item class elements
-#         print(f'[PROCESS]: Extracting link elements within sub-group-item class.')
-#         sub_gp_element_list = driver.find_elements_by_css_selector(".sub-group-item a")
-#         print(f'[INFO]: Extracted link elements successfully.')
-
-#         # Extract all anchor tags
-#         # link_tags = driver.find_elements_by_tag_name('a')
-
-#         print(f'[PROCESS]: Extracting link text from link elements.')
-#         # Create an emply list to hold all the urls for the sub groups
-#         sub_gp_links = []
-
-#         # Extract the urls of only the images from each of the tag WebElements
-#         for tag in sub_gp_element_list:
-#             sub_gp_links.append(tag.get_attribute('href'))
-#         print(f'[INFO]: Extracted link text from link elements successfully.')
-
-#         print(f'[PROCESS]: Printing Extracted links.')
-#         for link in sub_gp_links:
-#             print(link)
-#         print(f'[INFO]: Print successful.')
-
-#         return(sub_gp_links)
-    
-#     def extract_product_info(self):
-
-
-
 
 
 def extract_group_links(driver):
@@ -262,8 +77,12 @@ def extract_group_links(driver):
 
 
 def aliex_login(driver):
-    login_id = '***REMOVED***'
-    login_pass = '***REMOVED***'
+    '''
+    This function is used for auto login into aliexpress.
+    '''
+
+    login_id = '<your login ID as a string>'
+    login_pass = '<your login Password as a string>'
     print(f'[PROCESS]: Executing Login function.')
     print(f'[INFO]: Inside login function title text says = {driver.title}')
 
@@ -294,7 +113,6 @@ def aliex_login(driver):
     # return(driver)
 
     
-
 def main():
 
     # AliExpress Landing Page:
@@ -328,8 +146,9 @@ def main():
         # Start collecting links.
         print(f'[INFO]: Displayed URL matches the Store URL provided')
         extract_group_links(driver)
-
+    
     elif 'login' in display_url:
+        # Login URL Example = https://login.aliexpress.com/
         # First login and then collect links.
         print(f'[INFO]: Hit the login page')
         aliex_login(driver)
@@ -352,19 +171,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# #Create the directory after checking if it already exists or not
-# dir_name = 'all_links'
-# if not os.path.exists(dir_name):
-#     try:
-#         os.mkdir(dir_name)
-#     except OSError:
-#         print ("[INFO] Creation of the directory {} failed".format(os.path.abspath(dir_name)))
-#     else:
-#         print ("[INFO] Successfully created the directory {} ".format(os.path.abspath(dir_name)))
-
-# # Write the links to the image pages to a file
-# f = open("{}/{}.csv".format(dir_name, album_name),'w')
-# f.write(",\n".join(hrefs))
-# print ("[INFO] Successfully created the file {}.csv with {} links".format(album_name, len(hrefs)))
