@@ -1,5 +1,5 @@
 # aliexpress-store-scraper
-A selenium-webdriver based scraper script for cataloguing a store from AliExpress. This codebase can be modified for price tracking and cataloguing search results.
+A selenium-webdriver based scraper script for cataloguing a store from AliExpress. This codebase can be modified for price tracking and cataloguing search results. This piece of software is licenced under GNU-GPLv2.
 
 ## Current System:
 - OS: Ubuntu 20.04 64bit
